@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/rabbit
+          http://www.springframework.org/schema/rabbit/spring-rabbit-1.5.xsd
+       ">
+	<context:component-scan base-package="org.lee.*" />
+	
+	<context:property-placeholder location="
+		classpath:jdbc.properties,
+		classpath:redis.properties,
+		classpath:rabbitmq.properties
+		"/>
+	<import resource="classpath:redis.xml"/>
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		init-method="init" destroy-method="close">
+		<!-- 设置数据库的基本配置（url,username,password） -->
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<!-- 数据库连接池 （初始化连接数 -->
+		<property name="initialSize" value="${ds.initialSize}" />
+		<property name="minIdle" value="${ds.minIdle}" />
+		<property name="maxActive" value="${ds.maxActive}" />
+		<!-- 配置数据库连接池的超时时间 -->
+		<property name="maxWait" value="${ds.maxWait}" />
+		<!-- 配置间隔时间（检查需关闭的空闲连接 ）单位毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="${ds.timeBetwwenEvictionRunsMillis}" />
+		<!-- 配置连接的最小生存时间 -->
+		<property name="minEvictableIdleTimeMillis" value="${ds.minEvictableIdleTimeMillis}" />
+	</bean>
+	<bean id="sqlSessionfactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="mapperLocations" value="classpath:mybatis/*.xml" />
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="typeAliasesPackage" value="org.lee.vo"></property>
+	</bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="annotationClass" value="org.springframework.stereotype.Repository" />
+		<property name="basePackage" value="org.lee.dao" />
+	</bean>
+
+	<bean id="requestProducer" class="org.lee.util.RequestProducer"
+		init-method="init">
+		<property name="host" value="${rabbitmq.host}" />
+		<property name="port" value="${rabbitmq.port}" />
+		<property name="userName" value="${rabbitmq.username}" />
+		<property name="password" value="${rabbitmq.password}" />
+		<property name="exchanges">
+			<list>
+				<value>buyActivity</value>
+			</list>
+		</property>
+		<property name="type">
+			<list>
+				<value>direct</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="goodsConsumer" class="org.lee.util.GoodsConsumer"
+		init-method="init">
+		<property name="host" value="${rabbitmq.host}" />
+		<property name="port" value="${rabbitmq.port}" />
+		<property name="userName" value="${rabbitmq.username}" />
+		<property name="password" value="${rabbitmq.password}" />
+		<property name="exchanges">
+			<list>
+				<value>buyActivity</value>
+			</list>
+		</property>
+		<property name="type">
+			<list>
+				<value>direct</value>
+			</list>
+		</property>
+		<property name="queueName" value="${rabbitmq.queueName}" />
+		<property name="bindExchange" value="${rabbitmq.bindExchange}"/>
+		<property name="routeExtrategy" value="${rabbitmq.routeExtrategy}"/>
+
+	</bean>
+	<bean id="applicationContextInvocation" class="org.workin.web.spring.invocation.WebApplicationContextInvocation" />
+    <bean id="defaultHandlerMapping" class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" >
+		<property name="interceptors">
+		 	<list>  
+		 		<ref bean="applicationContextInvocation"/>
+		 	</list>
+		 </property> 
+	</bean>
+	<bean id="messageResolver" class="org.workin.web.spring.WebAppContextMessageReslover">
+		<property name="localeResolver" ref="localeResolver"/>
+		<property name="messageSource" ref="messageSource"/>
+	</bean>
+	
+	<!-- 基于Session的国际化解析器 --> 
+	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver" >  
+		<property name="defaultLocale" value="zh_CN" />
+	</bean>  
+		
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames" >
+			<array>
+				<value>/i18n/messages</value>
+			</array>
+        </property>
+    </bean>
+
+</beans>

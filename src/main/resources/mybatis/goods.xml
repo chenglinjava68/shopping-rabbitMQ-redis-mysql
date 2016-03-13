@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.lee.dao.GoodsMapper">
+	<update id="updateGoodsStatus" parameterType="org.lee.vo.Goods">
+	    update 
+	    goods set isActivity=#{isActivity}, startTime=#{startTime}, endTime=#{endTime} 
+	    where id=#{id};
+		
+	</update>
+	<select id="selectGoodsById" resultType="org.lee.vo.Goods" parameterType="java.lang.Integer">
+	   select * from goods where id=#{id};
+	</select>
+	<select id="selectGoods" resultType="org.lee.vo.Goods" >
+	   select * from goods ;
+	</select>
+</mapper>
