@@ -10,8 +10,8 @@ import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-import com.ljy.service.IOrderService;
-import com.ljy.vo.Order;
+import org.lee.service.IOrderService;
+import org.lee.vo.Order;
 
 
 public class OrderUnit {

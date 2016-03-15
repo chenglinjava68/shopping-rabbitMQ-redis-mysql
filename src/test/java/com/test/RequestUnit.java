@@ -4,7 +4,7 @@ package com.test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-import com.ljy.util.RequestProducer;
+import org.lee.util.RequestProducer;
 
 public class RequestUnit {
    public static void main(String[] args) {

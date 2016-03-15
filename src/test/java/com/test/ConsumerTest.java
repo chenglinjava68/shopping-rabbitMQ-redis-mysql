@@ -3,7 +3,7 @@ package com.test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-import com.ljy.util.GoodsConsumer;
+import org.lee.util.GoodsConsumer;
 
 public class ConsumerTest {
 	public static void main(String[] args) {
